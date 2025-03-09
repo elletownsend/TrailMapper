@@ -158,7 +158,8 @@ const getTrailType = (tags: Record<string, any>): string => {
   if (
     tags.highway === 'footway' ||
     tags.foot === 'yes' ||
-    tags.foot === 'designated'
+    tags.foot === 'designated' ||
+    tags.designation === 'public_footpath'
   ) {
     return 'Footpath'
   } else if (
@@ -170,7 +171,8 @@ const getTrailType = (tags: Record<string, any>): string => {
   } else if (
     tags.highway === 'bridleway' ||
     tags.horse === 'yes' ||
-    tags.horse === 'designated'
+    tags.horse === 'designated' ||
+    tags.designation === 'public_bridleway'
   ) {
     return 'Bridleway'
   } else {
@@ -246,6 +248,8 @@ export const fetchNearbyTrails = async (
         way(around:${radius},${latitude},${longitude})["highway"="cycleway"];
         way(around:${radius},${latitude},${longitude})["highway"="bridleway"];
         way(around:${radius},${latitude},${longitude})["highway"="path"];
+        way(around:${radius},${latitude},${longitude})["designation"="public_bridleway"];
+        way(around:${radius},${latitude},${longitude})["designation"="public_footpath"];
         relation(around:${radius},${latitude},${longitude})["route"="hiking"];
         relation(around:${radius},${latitude},${longitude})["route"="bicycle"];
         relation(around:${radius},${latitude},${longitude})["route"="horse"];
