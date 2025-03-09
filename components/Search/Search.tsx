@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
   Keyboard,
 } from 'react-native'
-import { iconColor } from '../constants'
+import { darkestGreen, iconColor } from '../constants'
 
 // GEOCODING API URL
 const apiKey = process.env.EXPO_PUBLIC_GEOCODING_API_KEY
@@ -89,7 +89,9 @@ const Search = ({ style, onLocationSelect, navigateToMap }: SearchProps) => {
           }, 100)
         }}
       >
-        <Feather name='search' size={25} color={iconColor} />
+        <View style={styles.iconContainer}>
+          <Feather name='search' size={25} color={iconColor} />
+        </View>
         <Text style={styles.searchText}>Search...</Text>
       </TouchableOpacity>
 
@@ -170,7 +172,7 @@ const styles = StyleSheet.create({
   searchButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 8,
     borderRadius: 100,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -179,6 +181,14 @@ const styles = StyleSheet.create({
     elevation: 2,
     backgroundColor: '#fff',
     width: Dimensions.get('window').width - 24,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: darkestGreen,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   searchText: {
     marginLeft: 10,

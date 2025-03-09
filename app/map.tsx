@@ -3,8 +3,6 @@ import { StyleSheet, View, Text, Dimensions, Alert } from 'react-native'
 import MapView, { Marker, Polyline, Callout, Region } from 'react-native-maps'
 import * as Location from 'expo-location'
 import { fetchNearbyTrails } from '../services/api'
-import { StatusBar } from 'expo-status-bar'
-import { Feather } from '@expo/vector-icons'
 import { useLocalSearchParams } from 'expo-router'
 import {
   lightestGreen,
@@ -276,6 +274,7 @@ export default function MapScreen() {
                       longitude: location.coords.longitude,
                     }}
                     title='You are here'
+                    flat={true}
                   />
                 )}
 
@@ -287,7 +286,8 @@ export default function MapScreen() {
                       longitude: selectedLocation.longitude,
                     }}
                     title={selectedLocation.name || 'Selected location'}
-                    pinColor='#0ea5e9' // Blue pin for selected location
+                    pinColor={mediumGreen}
+                    flat={true}
                   >
                     <Callout>
                       <View style={styles.calloutContainer}>
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
   filterContainer: {
     position: 'absolute',
     maxWidth: Dimensions.get('window').width - 8,
-    top: 116,
+    top: 120,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     width: '100%',

@@ -7,7 +7,7 @@ import {
   useColorScheme,
 } from 'react-native'
 import { router } from 'expo-router'
-import { Ionicons } from '@expo/vector-icons'
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import Search from '@/components/Search/Search'
 import Container from '@/components/Container/Container'
 import { darkestGreen } from '@/components/constants'
@@ -55,12 +55,12 @@ export default function Index() {
           accessibilityLabel='Nearby trails'
         >
           <View style={styles.actionIcon}>
-            <Ionicons name='location-outline' size={25} color={darkestGreen} />
+            <Feather name='map-pin' size={25} color={darkestGreen} />
           </View>
           <Text
             style={[styles.actionText, { color: isDark ? '#fff' : '#000' }]}
           >
-            Nearby
+            Nearby Trials
           </Text>
         </TouchableOpacity>
 
@@ -73,12 +73,12 @@ export default function Index() {
           accessibilityLabel='Saved trails'
         >
           <View style={styles.actionIcon}>
-            <Ionicons name='bookmark-outline' size={25} color={darkestGreen} />
+            <Feather name='bookmark' size={25} color={darkestGreen} />
           </View>
           <Text
             style={[styles.actionText, { color: isDark ? '#fff' : '#000' }]}
           >
-            Saved
+            Saved Trails
           </Text>
         </TouchableOpacity>
 
@@ -88,16 +88,19 @@ export default function Index() {
             { backgroundColor: isDark ? '#1e1e1e' : '#fff' },
           ]}
           accessibilityRole='button'
-          accessibilityLabel='View map'
-          onPress={() => router.push('/map')}
+          accessibilityLabel='Local Bridleways'
         >
           <View style={styles.actionIcon}>
-            <Ionicons name='map-outline' size={25} color={darkestGreen} />
+            <MaterialCommunityIcons
+              name='horse'
+              size={25}
+              color={darkestGreen}
+            />
           </View>
           <Text
             style={[styles.actionText, { color: isDark ? '#fff' : '#000' }]}
           >
-            Map
+            Local Bridlepaths
           </Text>
         </TouchableOpacity>
       </Container>
@@ -140,6 +143,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   actionText: {
+    textAlign: 'center',
     fontSize: 14,
     fontWeight: '500',
   },
