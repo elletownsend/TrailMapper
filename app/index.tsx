@@ -16,6 +16,23 @@ export default function Index() {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
 
+  // Function to navigate to the map page with coordinates
+  const navigateToMapWithLocation = (
+    lat: number,
+    lon: number,
+    displayName?: string
+  ) => {
+    // Navigate to the map page with location parameters
+    router.push({
+      pathname: '/map',
+      params: {
+        lat,
+        lon,
+        name: displayName ? encodeURIComponent(displayName) : undefined,
+      },
+    })
+  }
+
   return (
     <View
       style={[
@@ -25,7 +42,7 @@ export default function Index() {
     >
       <View style={styles.header}>
         <Text style={[styles.welcomeText, { color: '#000' }]}>Hey 👋</Text>
-        <Search />
+        <Search navigateToMap={navigateToMapWithLocation} />
       </View>
 
       <Container style={styles.quickActions}>

@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import { StyleSheet, View, Text, Dimensions, Alert } from 'react-native'
 import MapView, { Marker, Polyline, Callout, Region } from 'react-native-maps'
 import * as Location from 'expo-location'
-
 import { fetchNearbyTrails } from '../services/api'
+import { StatusBar } from 'expo-status-bar'
+import { Feather } from '@expo/vector-icons'
+import { useLocalSearchParams } from 'expo-router'
 import {
   lightestGreen,
   lightGreen,
@@ -63,6 +65,51 @@ export default function MapScreen() {
     longitude: number
     name?: string
   } | null>(null)
+
+  // Get URL parameters
+  const params = useLocalSearchParams<{
+    lat: string
+    lon: string
+    name: string
+  }>()
+
+  // Handle navigation from index page
+  useEffect(() => {
+    if (params.lat && params.lon) {
+      const lat = parseFloat(params.lat)
+      const lon = parseFloat(params.lon)
+      const name = params.name ? decodeURIComponent(params.name) : undefined
+
+      if (!isNaN(lat) && !isNaN(lon)) {
+        // Set the selected location
+        setSelectedLocation({
+          latitude: lat,
+          longitude: lon,
+          name,
+        })
+
+        // Create the new region
+        const newRegion = {
+          latitude: lat,
+          longitude: lon,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        }
+
+        // Update current region
+        setCurrentRegion(newRegion)
+        setInitialRegion(newRegion)
+
+        // Set user moved map to true to prevent auto-centering on user location
+        setIsUserMovedMap(true)
+
+        // Fetch trails at the selected location with a slight delay
+        setTimeout(() => {
+          fetchTrails(lat, lon)
+        }, 500)
+      }
+    }
+  }, [params.lat, params.lon, params.name])
 
   useEffect(() => {
     let locationSubscription: Location.LocationSubscription | undefined

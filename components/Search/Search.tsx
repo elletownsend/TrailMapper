@@ -28,9 +28,10 @@ interface SearchResult {
 interface SearchProps {
   style?: {}
   onLocationSelect?: (lat: number, lon: number, displayName?: string) => void
+  navigateToMap?: (lat: number, lon: number, displayName?: string) => void
 }
 
-const Search = ({ style, onLocationSelect }: SearchProps) => {
+const Search = ({ style, onLocationSelect, navigateToMap }: SearchProps) => {
   const [modalVisible, setModalVisible] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -62,7 +63,9 @@ const Search = ({ style, onLocationSelect }: SearchProps) => {
     const lat = parseFloat(item.lat)
     const lon = parseFloat(item.lon)
 
-    if (onLocationSelect && !isNaN(lat) && !isNaN(lon)) {
+    if (navigateToMap && !isNaN(lat) && !isNaN(lon)) {
+      navigateToMap(lat, lon, item.display_name)
+    } else if (onLocationSelect && !isNaN(lat) && !isNaN(lon)) {
       onLocationSelect(lat, lon, item.display_name)
     }
 
