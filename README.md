@@ -1,3 +1,5 @@
+![Github Readme](https://github.com/user-attachments/assets/dbc34ac9-a74d-4400-9973-f30905f2cd0e)
+
 # Trail Mapper is a map displaying cycle path, foot path and bridle path routes 🚲🦶🐴
 Using:
 - Geocoding API (geocode.maps.co)
