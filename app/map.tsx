@@ -13,6 +13,7 @@ import {
 } from '@/components/constants'
 import Overlay from '@/components/Overlay/Overlay'
 import PillButton from '@/components/PillButton/PillButton'
+import Search from '@/components/Search/Search'
 
 // Define trail types
 type TrailType = 'Bridleway' | 'Footpath' | 'Cycleway' | 'Path'
@@ -132,6 +133,9 @@ export default function MapScreen() {
   const onRegionChangeComplete = (region: Region) => {
     setCurrentRegion(region)
     setIsUserMovedMap(true)
+
+    // wait a few seconds to see if user keeps moving?
+    // then searchInCurrentView
   }
 
   // Search in current view
@@ -265,6 +269,9 @@ export default function MapScreen() {
             <Overlay hasActivityIndicator message='Getting your location...' />
           )}
 
+          {/* Search */}
+          {initialRegion && <Search style={styles.searchBar} />}
+
           {/* Map control buttons */}
           {initialRegion && (
             <View style={styles.mapControls}>
@@ -313,19 +320,6 @@ export default function MapScreen() {
               />
 
               <PillButton
-                onPress={() => toggleTrailType('Footpath')}
-                label='Toggle Footpaths'
-                hint={`Toggles showing footpaths on the map - footpaths are currently ${
-                  showTrailTypes.Bridleway ? 'showing' : 'not showing'
-                }.`}
-                iconStyle='MaterialCommunityIcons'
-                iconName='walk'
-                text='Footpaths'
-                isLoading={false}
-                color={showTrailTypes.Footpath ? trailColors.Footpath : grey}
-              />
-
-              <PillButton
                 onPress={() => toggleTrailType('Cycleway')}
                 label='Toggle Cycleways'
                 hint={`Toggles showing cycleways on the map - cycleways are currently ${
@@ -336,6 +330,19 @@ export default function MapScreen() {
                 text='Cycleways'
                 isLoading={false}
                 color={showTrailTypes.Cycleway ? trailColors.Cycleway : grey}
+              />
+
+              <PillButton
+                onPress={() => toggleTrailType('Footpath')}
+                label='Toggle Footpaths'
+                hint={`Toggles showing footpaths on the map - footpaths are currently ${
+                  showTrailTypes.Bridleway ? 'showing' : 'not showing'
+                }.`}
+                iconStyle='MaterialCommunityIcons'
+                iconName='walk'
+                text='Footpaths'
+                isLoading={false}
+                color={showTrailTypes.Footpath ? trailColors.Footpath : grey}
               />
             </View>
           )}
@@ -362,18 +369,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     margin: 20,
   },
+  searchBar: {
+    position: 'absolute',
+    top: 56,
+  },
   filterContainer: {
     position: 'absolute',
     maxWidth: Dimensions.get('window').width - 8,
-    top: 160, // TO DO: needs fixing
+    top: 116,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     width: '100%',
   },
   mapControls: {
     position: 'absolute',
-    top: 56,
-    right: 16,
+    bottom: 24,
+    left: 16,
     flexDirection: 'column',
   },
 })

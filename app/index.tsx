@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   useColorScheme,
 } from 'react-native'
-import { Link, router } from 'expo-router'
+import { router } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import Search from '@/components/Search/Search'
 import Container from '@/components/Container/Container'
+import { darkestGreen } from '@/components/constants'
 
 export default function Index() {
   const colorScheme = useColorScheme()
@@ -37,7 +38,7 @@ export default function Index() {
           accessibilityLabel='Nearby trails'
         >
           <View style={styles.actionIcon}>
-            <Ionicons name='location-outline' size={22} color='#84a59d' />
+            <Ionicons name='location-outline' size={22} color={darkestGreen} />
           </View>
           <Text
             style={[styles.actionText, { color: isDark ? '#fff' : '#000' }]}
@@ -55,7 +56,7 @@ export default function Index() {
           accessibilityLabel='Saved trails'
         >
           <View style={styles.actionIcon}>
-            <Ionicons name='bookmark-outline' size={22} color='#84a59d' />
+            <Ionicons name='bookmark-outline' size={22} color={darkestGreen} />
           </View>
           <Text
             style={[styles.actionText, { color: isDark ? '#fff' : '#000' }]}
@@ -74,7 +75,7 @@ export default function Index() {
           onPress={() => router.push('/map')}
         >
           <View style={styles.actionIcon}>
-            <Ionicons name='map-outline' size={22} color='#84a59d' />
+            <Ionicons name='map-outline' size={22} color={darkestGreen} />
           </View>
           <Text
             style={[styles.actionText, { color: isDark ? '#fff' : '#000' }]}
@@ -89,8 +90,9 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 72,
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
   },
   header: {
     marginBottom: 20,
@@ -99,21 +101,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 16,
-  },
-  searchButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  searchText: {
-    marginLeft: 10,
-    fontSize: 16,
   },
   quickActions: {
     flexDirection: 'row',
