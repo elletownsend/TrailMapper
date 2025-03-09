@@ -154,34 +154,73 @@ const getRouteType = (route: string): string => {
 }
 
 // Helper to determine trail type
-const getTrailType = (tags: Record<string, any>): string => {
+const getTrailType = (
+  tags: Record<string, any>,
+  activeFilters?: Record<string, boolean>
+): string => {
+  // Create an array of possible types for this trail
+  const possibleTypes: string[] = []
+
+  if (
+    tags.highway === 'bridleway' ||
+    tags.horse === 'yes' ||
+    tags.horse === 'designated' ||
+    tags.designation === 'public_bridleway'
+  ) {
+    possibleTypes.push('Bridleway')
+  }
+
+  if (
+    tags.highway === 'cycleway' ||
+    tags.bicycle === 'yes' ||
+    tags.bicycle === 'designated'
+  ) {
+    possibleTypes.push('Cycleway')
+  }
+
   if (
     tags.highway === 'footway' ||
     tags.foot === 'yes' ||
     tags.foot === 'designated' ||
     tags.designation === 'public_footpath'
   ) {
-    return 'Footpath'
-  } else if (
-    tags.highway === 'cycleway' ||
-    tags.bicycle === 'yes' ||
-    tags.bicycle === 'designated'
-  ) {
-    return 'Cycleway'
-  } else if (
-    tags.highway === 'bridleway' ||
-    tags.horse === 'yes' ||
-    tags.horse === 'designated' ||
-    tags.designation === 'public_bridleway'
-  ) {
-    return 'Bridleway'
-  } else {
+    possibleTypes.push('Footpath')
+  }
+
+  // If no specific type is found, default to Path
+  if (possibleTypes.length === 0) {
     return 'Path'
   }
+
+  // If activeFilters is provided, use it to determine precedence
+  if (activeFilters) {
+    // Find the first type that is active in filters
+    for (const type of possibleTypes) {
+      if (activeFilters[type]) {
+        return type
+      }
+    }
+
+    // If none of the possible types are active in filters,
+    // return the first possible type (this will be filtered out in the UI)
+    if (possibleTypes.length > 0) {
+      return possibleTypes[0]
+    }
+  }
+
+  // Default precedence: Bridleway > Cycleway > Footpath
+  if (possibleTypes.includes('Bridleway')) return 'Bridleway'
+  if (possibleTypes.includes('Cycleway')) return 'Cycleway'
+  if (possibleTypes.includes('Footpath')) return 'Footpath'
+
+  return 'Path'
 }
 
 // Process raw OSM data into a more usable format
-const processOsmData = (osmData: any): Trail[] => {
+const processOsmData = (
+  osmData: any,
+  activeFilters?: Record<string, boolean>
+): Trail[] => {
   const trails: Trail[] = []
   const nodes: Record<string, { lat: number; lon: number }> = {}
 
@@ -202,7 +241,7 @@ const processOsmData = (osmData: any): Trail[] => {
       element.tags &&
       (isPathOrTrail(element.tags) || isBridleway(element.tags))
     ) {
-      const trailType = getTrailType(element.tags)
+      const trailType = getTrailType(element.tags, activeFilters)
       const name = element.tags.name || `${trailType} Path`
       const coords = element.nodes
         .map((nodeId: string | number) => nodes[nodeId])
@@ -230,7 +269,8 @@ const processOsmData = (osmData: any): Trail[] => {
 export const fetchNearbyTrails = async (
   latitude: number,
   longitude: number,
-  radius = 5000
+  radius = 5000,
+  activeFilters?: Record<string, boolean>
 ): Promise<Trail[]> => {
   try {
     // Check if we're online
@@ -265,7 +305,7 @@ export const fetchNearbyTrails = async (
     const data = await response.json()
 
     // Process OSM data into a more usable format
-    const trails = processOsmData(data)
+    const trails = processOsmData(data, activeFilters)
 
     // Cache the results for offline use
     await cacheTrailData(latitude, longitude, trails)
@@ -339,7 +379,8 @@ const isPathOrTrail = (tags: Record<string, any>): boolean => {
     tags.highway === 'cycleway' ||
     tags.highway === 'path' ||
     tags.foot === 'yes' ||
-    tags.bicycle === 'yes'
+    tags.bicycle === 'yes' ||
+    tags.designation === 'public_footpath'
   )
 }
 
@@ -347,6 +388,7 @@ const isBridleway = (tags: Record<string, any>): boolean => {
   return (
     tags.highway === 'bridleway' ||
     tags.horse === 'yes' ||
-    tags.horse === 'designated'
+    tags.horse === 'designated' ||
+    tags.designation === 'public_bridleway'
   )
 }

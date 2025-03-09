@@ -8,6 +8,8 @@ import {
 } from 'react-native'
 import { Link, router } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import Search from '@/components/Search/Search'
+import Container from '@/components/Container/Container'
 
 export default function Index() {
   const colorScheme = useColorScheme()
@@ -21,28 +23,11 @@ export default function Index() {
       ]}
     >
       <View style={styles.header}>
-        <Text style={[styles.welcomeText, { color: isDark ? '#fff' : '#000' }]}>
-          Discover Trails
-        </Text>
-        <TouchableOpacity
-          style={[
-            styles.searchButton,
-            { backgroundColor: isDark ? '#1e1e1e' : '#fff' },
-          ]}
-          accessibilityRole='button'
-          accessibilityLabel='Search trails'
-          accessibilityHint='Opens search interface'
-        >
-          <Ionicons name='search' size={22} color='#84a59d' />
-          <Text
-            style={[styles.searchText, { color: isDark ? '#ccc' : '#666' }]}
-          >
-            Find a trail...
-          </Text>
-        </TouchableOpacity>
+        <Text style={[styles.welcomeText, { color: '#000' }]}>Hey 👋</Text>
+        <Search />
       </View>
 
-      <View style={styles.quickActions}>
+      <Container style={styles.quickActions}>
         <TouchableOpacity
           style={[
             styles.actionButton,
@@ -97,7 +82,7 @@ export default function Index() {
             Map
           </Text>
         </TouchableOpacity>
-      </View>
+      </Container>
     </View>
   )
 }

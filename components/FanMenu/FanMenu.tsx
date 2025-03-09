@@ -7,8 +7,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import { RelativePathString, useRouter } from 'expo-router'
 import { Feather, AntDesign } from '@expo/vector-icons'
-
-const iconColor = '#DAD7CD'
+import { iconColor } from '../constants'
 
 const menuItems = [
   { label: 'Home', route: '/', icon: 'home' },

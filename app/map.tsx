@@ -121,7 +121,12 @@ export default function MapScreen() {
     setIsLoading(true)
     try {
       // Use either combined sources or just OSM based on user preference
-      const trails = await fetchNearbyTrails(latitude, longitude)
+      const trails = await fetchNearbyTrails(
+        latitude,
+        longitude,
+        5000,
+        showTrailTypes
+      )
       setTrails(trails)
     } catch (error) {
       console.error('Error fetching trails:', error)
@@ -175,10 +180,19 @@ export default function MapScreen() {
 
   // Toggle specific trail type visibility
   const toggleTrailType = (type: TrailType): void => {
-    setShowTrailTypes((prev) => ({
-      ...prev,
-      [type]: !prev[type],
-    }))
+    setShowTrailTypes((prev) => {
+      const newFilters = {
+        ...prev,
+        [type]: !prev[type],
+      }
+
+      // Refetch trails with new filter settings if we have a location
+      if (currentRegion) {
+        fetchTrails(currentRegion.latitude, currentRegion.longitude)
+      }
+
+      return newFilters
+    })
   }
 
   return (
