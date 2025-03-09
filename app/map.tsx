@@ -1,28 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react'
-import {
-  StyleSheet,
-  View,
-  Text,
-  Dimensions,
-  TouchableOpacity,
-  ActivityIndicator,
-  Switch,
-} from 'react-native'
+import { StyleSheet, View, Text, Dimensions } from 'react-native'
 import MapView, { Marker, Polyline, Callout, Region } from 'react-native-maps'
 import * as Location from 'expo-location'
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 
 import { fetchNearbyTrails } from '../services/api'
+import {
+  lightestGreen,
+  lightGreen,
+  mediumGreen,
+  cream,
+  grey,
+} from '@/components/constants'
+import Overlay from '@/components/Overlay/Overlay'
+import PillButton from '@/components/PillButton/PillButton'
 
 // Define trail types
 type TrailType = 'Bridleway' | 'Footpath' | 'Cycleway' | 'Path'
 
 // Define trail colors
 const trailColors: Record<TrailType, string> = {
-  Bridleway: '#3a5a40',
-  Footpath: '#a3b18a',
-  Cycleway: '#588157',
-  Path: '#dad7cd',
+  Bridleway: mediumGreen,
+  Footpath: lightestGreen,
+  Cycleway: lightGreen,
+  Path: cream,
 }
 
 // Define trail visibility state type
@@ -41,20 +41,6 @@ interface Trail {
   lat?: number
   lon?: number
 }
-
-// Loading indicator component
-const LoadingOverlay = ({
-  message = 'Loading trails...',
-}: {
-  message?: string
-}) => (
-  <View style={styles.loadingOverlay}>
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size='large' color='#3a5a40' />
-      <Text style={styles.loadingText}>{message}</Text>
-    </View>
-  </View>
-)
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null)
@@ -239,9 +225,6 @@ export default function MapScreen() {
                         }))}
                         strokeColor={getTrailColor(trail.type)}
                         strokeWidth={4}
-                        lineDashPattern={
-                          trail.type === 'Bridleway' ? [5, 2] : undefined
-                        }
                         tappable={true}
                         onPress={() =>
                           alert(
@@ -275,43 +258,40 @@ export default function MapScreen() {
               </MapView>
 
               {/* Loading overlay */}
-              {isLoading && <LoadingOverlay />}
+              {/* TO DO: needs to be longer */}
+              {isLoading && <Overlay hasActivityIndicator />}
             </>
           ) : (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size='large' color='#3a5a40' />
-              <Text style={styles.loadingText}>Getting your location...</Text>
-            </View>
+            <Overlay hasActivityIndicator message='Getting your location...' />
           )}
 
           {/* Map control buttons */}
           {initialRegion && (
             <View style={styles.mapControls}>
               {isUserMovedMap && (
-                <TouchableOpacity
-                  style={styles.controlButton}
+                <PillButton
                   onPress={searchInCurrentView}
-                  disabled={isLoading}
-                  accessibilityLabel='Search in this area'
-                  accessibilityHint='Searches for trails in the current map view'
-                >
-                  <Ionicons name='search' size={24} color='#fff' />
-                  <Text style={styles.controlText}>
-                    {isLoading ? 'Searching...' : 'Search Here'}
-                  </Text>
-                </TouchableOpacity>
+                  label='Search in this area'
+                  hint='Searches for trails in the current map view'
+                  iconStyle='Feather'
+                  iconName='search'
+                  text='Search Here'
+                  isLoading={isLoading}
+                  color='#3a5a40'
+                />
               )}
 
               {isUserMovedMap && (
-                <TouchableOpacity
-                  style={styles.controlButton}
+                <PillButton
                   onPress={goToUserLocation}
-                  accessibilityLabel='Return to my location'
-                  accessibilityHint='Centers the map on your current location'
-                >
-                  <Ionicons name='locate' size={24} color='#fff' />
-                  <Text style={styles.controlText}>My Location</Text>
-                </TouchableOpacity>
+                  label='Return to my location'
+                  hint='Centers the map on your current location'
+                  iconStyle='Feather'
+                  iconName='crosshair'
+                  text='My Location'
+                  isLoading={isLoading}
+                  color='#3a5a40'
+                />
               )}
             </View>
           )}
@@ -319,50 +299,44 @@ export default function MapScreen() {
           {/* Trail type filter buttons */}
           {initialRegion && !isLoading && (
             <View style={styles.filterContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  {
-                    backgroundColor: showTrailTypes.Bridleway
-                      ? trailColors.Bridleway
-                      : '#e0e0e0',
-                  },
-                ]}
+              <PillButton
                 onPress={() => toggleTrailType('Bridleway')}
-              >
-                <MaterialCommunityIcons name='horse' size={18} color='#fff' />
-                <Text style={styles.filterText}>Bridleways</Text>
-              </TouchableOpacity>
+                label='Toggle Bridleways'
+                hint={`Toggles showing bridleways on the map - bridleways are currently ${
+                  showTrailTypes.Bridleway ? 'showing' : 'not showing'
+                }.`}
+                iconStyle='MaterialCommunityIcons'
+                iconName='horse'
+                text='Bridleways'
+                isLoading={false}
+                color={showTrailTypes.Bridleway ? trailColors.Bridleway : grey}
+              />
 
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  {
-                    backgroundColor: showTrailTypes.Footpath
-                      ? trailColors.Footpath
-                      : '#e0e0e0',
-                  },
-                ]}
+              <PillButton
                 onPress={() => toggleTrailType('Footpath')}
-              >
-                <MaterialCommunityIcons name='walk' size={18} color='#fff' />
-                <Text style={styles.filterText}>Footpaths</Text>
-              </TouchableOpacity>
+                label='Toggle Footpaths'
+                hint={`Toggles showing footpaths on the map - footpaths are currently ${
+                  showTrailTypes.Bridleway ? 'showing' : 'not showing'
+                }.`}
+                iconStyle='MaterialCommunityIcons'
+                iconName='walk'
+                text='Footpaths'
+                isLoading={false}
+                color={showTrailTypes.Footpath ? trailColors.Footpath : grey}
+              />
 
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  {
-                    backgroundColor: showTrailTypes.Cycleway
-                      ? trailColors.Cycleway
-                      : '#e0e0e0',
-                  },
-                ]}
+              <PillButton
                 onPress={() => toggleTrailType('Cycleway')}
-              >
-                <MaterialCommunityIcons name='bike' size={18} color='#fff' />
-                <Text style={styles.filterText}>Cycleways</Text>
-              </TouchableOpacity>
+                label='Toggle Cycleways'
+                hint={`Toggles showing cycleways on the map - cycleways are currently ${
+                  showTrailTypes.Cycleway ? 'showing' : 'not showing'
+                }.`}
+                iconStyle='MaterialCommunityIcons'
+                iconName='bike'
+                text='Cycleways'
+                isLoading={false}
+                color={showTrailTypes.Cycleway ? trailColors.Cycleway : grey}
+              />
             </View>
           )}
         </>
@@ -390,102 +364,16 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     position: 'absolute',
-    bottom: 80,
+    maxWidth: Dimensions.get('window').width - 8,
+    top: 160, // TO DO: needs fixing
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     width: '100%',
-  },
-  filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    marginHorizontal: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  filterText: {
-    color: '#fff',
-    marginLeft: 5,
-    fontWeight: '500',
-    fontSize: 12,
   },
   mapControls: {
     position: 'absolute',
-    top: 20,
-    right: 20,
+    top: 56,
+    right: 16,
     flexDirection: 'column',
-  },
-  controlButton: {
-    backgroundColor: '#3a5a40',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  controlText: {
-    color: '#fff',
-    marginLeft: 8,
-    fontWeight: '500',
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  loadingContainer: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  loadingText: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginTop: 10,
-    color: '#333',
-  },
-  dataSourceToggle: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 8,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  dataSourceText: {
-    fontSize: 12,
-    marginRight: 8,
-    color: '#333',
   },
 })

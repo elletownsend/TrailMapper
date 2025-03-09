@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     bottom: 24,
-    right: 24,
+    right: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
