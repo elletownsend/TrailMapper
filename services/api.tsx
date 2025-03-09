@@ -299,21 +299,63 @@ export const fetchNearbyTrails = async (
       out skel qt;
     `
 
-    const response = await fetch(
-      `${OSM_API_BASE}?data=${encodeURIComponent(query)}`
-    )
-    const data = await response.json()
+    try {
+      // Create an AbortController to handle timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
 
-    // Process OSM data into a more usable format
-    const trails = processOsmData(data, activeFilters)
+      const response = await fetch(
+        `${OSM_API_BASE}?data=${encodeURIComponent(query)}`,
+        {
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      )
 
-    // Cache the results for offline use
-    await cacheTrailData(latitude, longitude, trails)
+      // Clear the timeout
+      clearTimeout(timeoutId)
 
-    return trails
+      if (!response.ok) {
+        console.error(
+          'OSM API response not OK:',
+          response.status,
+          response.statusText
+        )
+        throw new Error(`OSM API response not OK: ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      // Check if the data has the expected structure
+      if (!data || !data.elements || !Array.isArray(data.elements)) {
+        console.error('Invalid OSM data format:', data)
+        throw new Error('Invalid OSM data format')
+      }
+
+      // Process OSM data into a more usable format
+      const trails = processOsmData(data, activeFilters)
+
+      // Cache the results for offline use
+      await cacheTrailData(latitude, longitude, trails)
+
+      return trails
+    } catch (fetchError: unknown) {
+      console.error('Error fetching from OSM API:', fetchError)
+
+      // Check if it's a timeout error
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        console.info('Request timed out, falling back to offline data')
+      }
+
+      throw fetchError
+    }
   } catch (error) {
     console.error('Error fetching trails from OSM:', error)
     // Fallback to offline data if available
+    console.info('Falling back to offline data')
     return fetchOfflineTrails(latitude, longitude)
   }
 }

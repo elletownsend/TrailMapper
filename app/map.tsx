@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { StyleSheet, View, Text, Dimensions } from 'react-native'
+import { StyleSheet, View, Text, Dimensions, Alert } from 'react-native'
 import MapView, { Marker, Polyline, Callout, Region } from 'react-native-maps'
 import * as Location from 'expo-location'
 
@@ -58,6 +58,11 @@ export default function MapScreen() {
     Cycleway: true,
     Path: true,
   })
+  const [selectedLocation, setSelectedLocation] = useState<{
+    latitude: number
+    longitude: number
+    name?: string
+  } | null>(null)
 
   useEffect(() => {
     let locationSubscription: Location.LocationSubscription | undefined
@@ -106,6 +111,7 @@ export default function MapScreen() {
   // Fetch trails based on coordinates
   const fetchTrails = async (latitude: number, longitude: number) => {
     setIsLoading(true)
+
     try {
       // Use either combined sources or just OSM based on user preference
       const trails = await fetchNearbyTrails(
@@ -114,9 +120,25 @@ export default function MapScreen() {
         5000,
         showTrailTypes
       )
+
+      // Update trails state
       setTrails(trails)
+
+      // If no trails were found, show a message to the user
+      if (trails.length === 0) {
+        Alert.alert(
+          'No Trails Found',
+          'No trails were found in this location. Try searching in a different area.',
+          [{ text: 'OK' }]
+        )
+      }
     } catch (error) {
       console.error('Error fetching trails:', error)
+
+      // Show error message to user
+      Alert.alert('Error', 'Failed to fetch trails. Please try again later.', [
+        { text: 'OK' },
+      ])
     } finally {
       setIsLoading(false)
     }
@@ -210,6 +232,32 @@ export default function MapScreen() {
                   />
                 )}
 
+                {/* Display marker for selected location */}
+                {selectedLocation && (
+                  <Marker
+                    coordinate={{
+                      latitude: selectedLocation.latitude,
+                      longitude: selectedLocation.longitude,
+                    }}
+                    title={selectedLocation.name || 'Selected location'}
+                    pinColor='#0ea5e9' // Blue pin for selected location
+                  >
+                    <Callout>
+                      <View style={styles.calloutContainer}>
+                        <Text style={styles.calloutTitle}>
+                          {selectedLocation.name || 'Selected Location'}
+                        </Text>
+                        <Text>
+                          Latitude: {selectedLocation.latitude.toFixed(6)}
+                        </Text>
+                        <Text>
+                          Longitude: {selectedLocation.longitude.toFixed(6)}
+                        </Text>
+                      </View>
+                    </Callout>
+                  </Marker>
+                )}
+
                 {/* Display trails as polylines */}
                 {trails.length > 0 &&
                   trails
@@ -270,7 +318,44 @@ export default function MapScreen() {
           )}
 
           {/* Search */}
-          {initialRegion && <Search style={styles.searchBar} />}
+          {initialRegion && (
+            <Search
+              style={styles.searchBar}
+              onLocationSelect={(lat, lon, displayName) => {
+                // Set the selected location
+                setSelectedLocation({
+                  latitude: lat,
+                  longitude: lon,
+                  name: displayName,
+                })
+
+                // Create the new region
+                const newRegion = {
+                  latitude: lat,
+                  longitude: lon,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }
+
+                // Update current region
+                setCurrentRegion(newRegion)
+
+                // Navigate to the selected location
+                if (mapRef.current) {
+                  mapRef.current.animateToRegion(newRegion)
+
+                  // Set user moved map to true to prevent auto-centering on user location
+                  setIsUserMovedMap(true)
+
+                  // Fetch trails at the selected location with a slight delay
+                  // to ensure the map animation completes first
+                  setTimeout(() => {
+                    fetchTrails(lat, lon)
+                  }, 500)
+                }
+              }}
+            />
+          )}
 
           {/* Map control buttons */}
           {initialRegion && (
@@ -386,5 +471,13 @@ const styles = StyleSheet.create({
     bottom: 24,
     left: 16,
     flexDirection: 'column',
+  },
+  calloutContainer: {
+    padding: 10,
+  },
+  calloutTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
 })
