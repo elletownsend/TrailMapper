@@ -38,7 +38,7 @@ export default function Index() {
           accessibilityLabel='Nearby trails'
         >
           <View style={styles.actionIcon}>
-            <Ionicons name='location-outline' size={22} color={darkestGreen} />
+            <Ionicons name='location-outline' size={25} color={darkestGreen} />
           </View>
           <Text
             style={[styles.actionText, { color: isDark ? '#fff' : '#000' }]}
@@ -56,7 +56,7 @@ export default function Index() {
           accessibilityLabel='Saved trails'
         >
           <View style={styles.actionIcon}>
-            <Ionicons name='bookmark-outline' size={22} color={darkestGreen} />
+            <Ionicons name='bookmark-outline' size={25} color={darkestGreen} />
           </View>
           <Text
             style={[styles.actionText, { color: isDark ? '#fff' : '#000' }]}
@@ -75,7 +75,7 @@ export default function Index() {
           onPress={() => router.push('/map')}
         >
           <View style={styles.actionIcon}>
-            <Ionicons name='map-outline' size={22} color={darkestGreen} />
+            <Ionicons name='map-outline' size={25} color={darkestGreen} />
           </View>
           <Text
             style={[styles.actionText, { color: isDark ? '#fff' : '#000' }]}
